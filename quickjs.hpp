@@ -44,6 +44,10 @@
 #define QJSCPP_DEBUG(stmt)
 #endif
 
+#if defined(_MSC_VER) && !defined(__attribute__)
+#define __attribute__(x)
+#endif
+
 namespace quickjs
 {
 	class runtime;
