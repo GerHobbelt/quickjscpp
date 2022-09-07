@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "monolithic_examples.h"
+
 static quickjs::value do_print(const quickjs::args& a)
 {
 	std::ostringstream oss;
@@ -109,7 +111,12 @@ static void exceptions_3()
 	}
 }
 
-int main(int argc, char* argv[])
+
+#if defined(BUILD_MONOLITHIC)
+#define main      qjscpp_exception_example_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	exceptions_1();
 	exceptions_2();

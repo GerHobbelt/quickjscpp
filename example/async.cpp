@@ -4,6 +4,8 @@
 #include <set>
 #include <memory>
 
+#include "monolithic_examples.h"
+
 static quickjs::value do_print(const quickjs::args& a)
 {
 	std::ostringstream oss;
@@ -24,7 +26,12 @@ class my_exception
 {
 };
 
-int main(int argc, char* argv[])
+
+#if defined(BUILD_MONOLITHIC)
+#define main      qjscpp_async_example_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	try
 	{

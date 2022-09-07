@@ -1,7 +1,14 @@
 #include <quickjs.hpp>
 #include <iostream>
 
-int main(int argc, char* argv[])
+#include "monolithic_examples.h"
+
+
+#if defined(BUILD_MONOLITHIC)
+#define main      qjscpp_simple_example_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	try
 	{

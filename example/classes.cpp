@@ -3,6 +3,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "monolithic_examples.h"
+
 static quickjs::value do_print(const quickjs::args& a)
 {
 	std::ostringstream oss;
@@ -352,7 +354,12 @@ static void classes_2()
 		std::cout << "get_my_class_shared() was never called!" << std::endl;
 }
 
-int main(int argc, char* argv[])
+
+#if defined(BUILD_MONOLITHIC)
+#define main      qjscpp_classes_example_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	classes_1();
 	classes_2();

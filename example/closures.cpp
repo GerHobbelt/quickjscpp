@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 
+#include "monolithic_examples.h"
+
 static quickjs::value do_print(const quickjs::args& a)
 {
 	std::ostringstream oss;
@@ -18,7 +20,12 @@ static quickjs::value do_print(const quickjs::args& a)
 	return {};
 }
 
-int main(int argc, char* argv[])
+
+#if defined(BUILD_MONOLITHIC)
+#define main      qjscpp_closures_example_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	try
 	{
@@ -61,9 +68,13 @@ int main(int argc, char* argv[])
 		}
 		else
 			std::cout << "No callback saved!" << std::endl;
+
+		return 0;
 	}
 	catch (const quickjs::exception& e)
 	{
 		std::cerr << "quickjs exception: " << e.what() << std::endl;
+
+		return 1;
 	}
 }

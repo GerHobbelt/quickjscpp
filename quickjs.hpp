@@ -631,11 +631,11 @@ namespace quickjs
 		friend class runtime;
 		friend class args;
 		friend class context_exception;
-		friend class detail::jsvalue_list;
-		friend class detail::closures_common;
-		friend class detail::functions;
-		template <typename FirstType> friend class detail::closures;
-		friend class detail::classes;
+		friend struct detail::jsvalue_list;
+		friend struct detail::closures_common;
+		friend struct detail::functions;
+		template <typename FirstType> friend struct detail::closures;
+		friend struct detail::classes;
 		template <typename Owned> friend class detail::owner;
 		template <typename ClassType> friend class class_builder;
 		
@@ -1179,8 +1179,8 @@ namespace quickjs
 		public std::vector<value>
 	{
 		friend class value;
-		friend class detail::classes;
-		friend class detail::closures_common;
+		friend struct detail::classes;
+		friend struct detail::closures_common;
 		
 		value this_;
 		
@@ -1268,8 +1268,8 @@ namespace quickjs
 	{
 		friend class runtime;
 		friend class context;
-		friend class detail::classes;
-		friend class detail::members;
+		friend struct detail::classes;
+		friend struct detail::members;
 		
 		JSClassID id{0};
 		const char* name{nullptr};
@@ -1287,8 +1287,8 @@ namespace quickjs
 	{
 		friend class runtime;
 		friend class context;
-		friend class detail::classes;
-		friend class detail::members;
+		friend struct detail::classes;
+		friend struct detail::members;
 		
 		JSClassID id{0};
 		const char* name{nullptr};
@@ -1307,9 +1307,9 @@ namespace quickjs
 		friend class runtime;
 		friend class value;
 		friend class detail::owner<context>;
-		friend class detail::classes;
-		friend class detail::closures_common;
-		friend class detail::functions;
+		friend struct detail::classes;
+		friend struct detail::closures_common;
+		friend struct detail::functions;
 		
 		class call_level
 		{
@@ -1613,7 +1613,7 @@ namespace quickjs
 	template <typename ClassType>
 	class object
 	{
-		friend class detail::members;
+		friend struct detail::members;
 		
 		JSCFunctionListEntry entry_;
 		
@@ -1693,7 +1693,7 @@ namespace quickjs
 	{
 		friend class context;
 		friend class value;
-		friend class detail::classes;
+		friend struct detail::classes;
 		
 		JSMallocFunctions mf_{
 			[](JSMallocState *s, size_t size) -> void*
@@ -2029,7 +2029,10 @@ namespace quickjs
 		//
 		// classes
 		//
-		
+
+#pragma warning(push)
+#pragma warning(disable: 4544)  // warning C4544: 'unnamed-parameter': default template argument ignored on this template declaration (compiling source file ../../thirdparty/
+
 		template <typename ClassType, typename std::enable_if<std::is_base_of<class_def<ClassType>, decltype(ClassType::class_definition)>::value>::type* = nullptr>
 		inline ClassType* classes::get_raw_inst(JSValueConst val)
 		{
@@ -2161,7 +2164,7 @@ namespace quickjs
 			}
 			return obj.steal();
 		}
-		
+
 		template <typename ClassType>
 		inline JSValue classes::ctor(JSContext *ctx, JSValueConst new_target, int argc, JSValueConst *argv)
 		{
@@ -2313,14 +2316,16 @@ namespace quickjs
 		inline value functions::call_common(const value& func, JSContext* ctx, const value& thisObj, Args&&... a)
 		{
 			size_t acnt = 0;
-			JSValue avals[sizeof...(a)];
+			// fix error C2466: cannot allocate an array of constant size 0 (compiling source file QuickJS-C++-Wrapper/example/simple.cpp)
+			JSValue avals[sizeof...(a) >= 1 ? sizeof...(a) : 1];
 			
 			jsvalue_list alist(ctx, avals, acnt);
 			
 			// C++17 has fold expressions...
 			__attribute__((unused)) int dummy[] = {{0}, ((void)alist.add_value(std::forward<Args>(a)), 0)... };
-			assert(acnt == sizeof...(a));
-			
+			assert(sizeof...(a) > 0 ? acnt == sizeof...(a) : true);
+			assert(sizeof...(a) == 0 ? acnt == 0 : true);
+
 			return call_common_args(func, ctx, thisObj, acnt, avals);
 		}
 		
@@ -2486,6 +2491,9 @@ namespace quickjs
 				return JS_Throw(ctx, JS_NewUncatchableError(ctx));
 			}
 		}
+
+#pragma warning(pop)
+
 	}
 	
 	//
