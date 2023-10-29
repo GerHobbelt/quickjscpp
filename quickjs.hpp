@@ -1354,8 +1354,8 @@ namespace quickjs
 			
 			~class_info()
 			{
-				assert(JS_IsUndefined(ctor));
-				assert(JS_IsUndefined(proto));
+				assert(!!JS_IsUndefined(ctor));
+				assert(!!JS_IsUndefined(proto));
 			}
 			
 			void cleanup(JSContext* ctx)
